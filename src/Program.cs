@@ -42,6 +42,11 @@ namespace Slideshow
         private static int ImageIndex { get; set; } = -1;
 
         /// <summary>
+        /// Whether every image is random.
+        /// </summary>
+        private static bool RandomIndex { get; set; }
+
+        /// <summary>
         /// All found files.
         /// </summary>
         private static List<string> Images { get; } = new();
@@ -61,6 +66,7 @@ namespace Slideshow
             if (!Configure(args))
             {
                 ShowAppOptions();
+                return;
             }
 
             // Hide cursor.
@@ -102,11 +108,25 @@ namespace Slideshow
         /// </summary>
         private static void OnTimerTick(object? sender, EventArgs e)
         {
-            ImageIndex++;
-
-            if (ImageIndex == Images.Count)
+            if (RandomIndex)
             {
-                ImageIndex = 0;
+                var index = new Random().Next(Images.Count);
+
+                while (index == ImageIndex)
+                {
+                    index = new Random().Next(Images.Count);
+                }
+
+                ImageIndex = index;
+            }
+            else
+            {
+                ImageIndex++;
+
+                if (ImageIndex == Images.Count)
+                {
+                    ImageIndex = 0;
+                }
             }
 
             var path = Images[ImageIndex];
@@ -217,6 +237,18 @@ namespace Slideshow
                 return true;
             }
 
+            // Cycle for more params.
+            for (var i = 1; i < args.Length; i++)
+            {
+                switch(args[i])
+                {
+                    // Randomize for each new image.
+                    case "-r":
+                        RandomIndex = true;
+                        break;
+                }
+            }
+
             // Done.
             return true;
         }
@@ -307,7 +339,10 @@ namespace Slideshow
             var text =
                 $"{Application.ProductName} v{Application.ProductVersion}{Environment.NewLine}" +
                 $"{Environment.NewLine}" +
-                "Usage: slideshow <path-to-images>";
+                $"Usage: slideshow <path-to-images> [options]{Environment.NewLine}" +
+                $"{Environment.NewLine}" +
+                $"Options:{Environment.NewLine}" +
+                $"  -r  Randomize for each new image.{Environment.NewLine}";
 
             MessageBox.Show(
                 text,
