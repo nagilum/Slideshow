@@ -4,6 +4,8 @@ namespace Slideshow
 {
     internal static class Program
     {
+        #region Properties
+
         /// <summary>
         /// Main window.
         /// </summary>
@@ -43,6 +45,8 @@ namespace Slideshow
         /// All found files.
         /// </summary>
         private static List<string> Images { get; } = new();
+
+        #endregion
 
         /// <summary>
         /// The main entry point for the application.
