@@ -1,0 +1,3 @@
+# Slideshow
+
+Simple slideshow app.
