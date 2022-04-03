@@ -32,6 +32,11 @@ namespace Slideshow
         private static Timer Interval { get; set; } = null!;
 
         /// <summary>
+        /// Interval, in milliseconds.
+        /// </summary>
+        private static int IntervalMilliseconds { get; set; } = 5000;
+
+        /// <summary>
         /// Slideshow image path.
         /// </summary>
         private static string ImagePath { get; set; } = null!;
@@ -221,32 +226,69 @@ namespace Slideshow
             {
                 if (!Directory.Exists(args[0]))
                 {
-                    throw new Exception($"Specified folder does not exist: {args[0]}");
+                    throw new Exception(
+                        $"Specified folder does not exist: {args[0]}");
                 }
 
                 ImagePath = args[0];
 
                 if (!FindAllImages())
                 {
-                    throw new Exception($"No images found in {ImagePath}");
+                    throw new Exception(
+                        $"No images found in {ImagePath}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(
+                    ex.Message,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+
                 return true;
             }
 
             // Cycle for more params.
-            for (var i = 1; i < args.Length; i++)
+            try
             {
-                switch(args[i])
+                for (var i = 1; i < args.Length; i++)
                 {
-                    // Randomize for each new image.
-                    case "-r":
-                        RandomIndex = true;
-                        break;
+                    switch (args[i])
+                    {
+                        // Randomize for each new image.
+                        case "-r":
+                            RandomIndex = true;
+                            break;
+
+                        // Interval, in milliseconds.
+                        case "-i":
+                            if (i == args.Length - 1)
+                            {
+                                throw new Exception(
+                                    "Argument -i must be followed by a number of milliseconds.");
+                            }
+
+                            if (!int.TryParse(args[i + 1], out var ms))
+                            {
+                                throw new Exception(
+                                    $"Unable to parse argument {args[i + 1]} to a valid number.");
+                            }
+
+                            IntervalMilliseconds = ms;
+                            break;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    ex.Message,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+
+                return false;
             }
 
             // Done.
@@ -307,7 +349,7 @@ namespace Slideshow
             Interval = new Timer
             {
                 Enabled = true,
-                Interval = 5000
+                Interval = IntervalMilliseconds
             };
 
             Interval.Tick += OnTimerTick;
@@ -339,10 +381,15 @@ namespace Slideshow
             var text =
                 $"{Application.ProductName} v{Application.ProductVersion}{Environment.NewLine}" +
                 $"{Environment.NewLine}" +
-                $"Usage: slideshow <path-to-images> [options]{Environment.NewLine}" +
+                $"Usage:{Environment.NewLine}" +
+                $" slideshow <path-to-images> [options]{Environment.NewLine}" +
                 $"{Environment.NewLine}" +
                 $"Options:{Environment.NewLine}" +
-                $"  -r  Randomize for each new image.{Environment.NewLine}";
+                $" -r{Environment.NewLine}" +
+                $"  Randomize for each new image.{Environment.NewLine}" +
+                $" -i <ms>{Environment.NewLine}" +
+                $"  Interval, in milliseconds. Defaults to 5000 = 5 seconds.{Environment.NewLine}" +
+                $"{Environment.NewLine}";
 
             MessageBox.Show(
                 text,
