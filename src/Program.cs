@@ -111,25 +111,12 @@ namespace Slideshow
 
                 // Go to previous image.
                 case Keys.Left:
-                    ImageIndex--;
+                    GoToPreviousImage();
+                    break;
 
-                    if (ImageIndex == -1)
-                    {
-                        ImageIndex = Images.Count - 1;
-                    }
-
-                    ImageIndex--;
-
-                    if (ImageIndex == -1)
-                    {
-                        ImageIndex = Images.Count - 1;
-                    }
-
-                    OnTimerTick(null, new());
-
-                    Interval.Enabled = false;
-                    Interval.Enabled = true;
-
+                // Go to next image.
+                case Keys.Right:
+                    GoToNextImage();
                     break;
             }
         }
@@ -217,6 +204,46 @@ namespace Slideshow
 
             // Init the first image.
             OnTimerTick(null, new());
+        }
+
+        #endregion
+
+        #region Helpers
+
+        /// <summary>
+        /// Go to previous image.
+        /// </summary>
+        private static void GoToPreviousImage()
+        {
+            ImageIndex--;
+
+            if (ImageIndex == -1)
+            {
+                ImageIndex = Images.Count - 1;
+            }
+
+            ImageIndex--;
+
+            if (ImageIndex == -1)
+            {
+                ImageIndex = Images.Count - 1;
+            }
+
+            OnTimerTick(null, new());
+
+            Interval.Enabled = false;
+            Interval.Enabled = true;
+        }
+
+        /// <summary>
+        /// Go to next image.
+        /// </summary>
+        private static void GoToNextImage()
+        {
+            OnTimerTick(null, new());
+
+            Interval.Enabled = false;
+            Interval.Enabled = true;
         }
 
         #endregion
@@ -428,7 +455,8 @@ namespace Slideshow
                 "Keys:",
                 " ESC - Exit slideshow.",
                 " Space - Pause/resume slideshow.",
-                " Left - Go to previous image."
+                " Left - Go to previous image.",
+                " Right - Go to next image."
             };
 
             var text = string.Join(Environment.NewLine, list);
