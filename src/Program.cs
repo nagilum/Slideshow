@@ -103,6 +103,11 @@ namespace Slideshow
                 case Keys.Escape:
                     Application.Exit();
                     break;
+
+                // Pause/resume the slideshow.
+                case Keys.Space:
+                    Interval.Enabled = !Interval.Enabled;
+                    break;
             }
         }
 
