@@ -47,14 +47,9 @@ namespace Slideshow
         private static int ImageIndex { get; set; } = -1;
 
         /// <summary>
-        /// Whether every image is random.
-        /// </summary>
-        private static bool RandomIndex { get; set; }
-
-        /// <summary>
         /// All found files.
         /// </summary>
-        private static List<string> Images { get; } = new();
+        private static List<string> Images { get; set; } = new();
 
         #endregion
 
@@ -113,25 +108,11 @@ namespace Slideshow
         /// </summary>
         private static void OnTimerTick(object? sender, EventArgs e)
         {
-            if (RandomIndex)
+            ImageIndex++;
+
+            if (ImageIndex == Images.Count)
             {
-                var index = new Random().Next(Images.Count);
-
-                while (index == ImageIndex)
-                {
-                    index = new Random().Next(Images.Count);
-                }
-
-                ImageIndex = index;
-            }
-            else
-            {
-                ImageIndex++;
-
-                if (ImageIndex == Images.Count)
-                {
-                    ImageIndex = 0;
-                }
+                ImageIndex = 0;
             }
 
             var path = Images[ImageIndex];
@@ -258,7 +239,12 @@ namespace Slideshow
                     {
                         // Randomize for each new image.
                         case "-r":
-                            RandomIndex = true;
+                            var rnd = new Random();
+                            
+                            Images = Images
+                                .OrderBy(_ => rnd.Next())
+                                .ToList();
+
                             break;
 
                         // Interval, in milliseconds.
@@ -324,6 +310,10 @@ namespace Slideshow
                     //
                 }
             }
+
+            Images = Images
+                .OrderBy(n => n)
+                .ToList();
 
             return Images.Count > 0;
         }
