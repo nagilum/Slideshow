@@ -387,20 +387,27 @@ namespace Slideshow
         /// </summary>
         private static void ShowAppOptions()
         {
-            var text =
-                $"{Application.ProductName} v{Application.ProductVersion}{Environment.NewLine}" +
-                $"{Environment.NewLine}" +
-                $"Usage:{Environment.NewLine}" +
-                $" slideshow <path-to-images> [options]{Environment.NewLine}" +
-                $"{Environment.NewLine}" +
-                $"Options:{Environment.NewLine}" +
-                $" -r{Environment.NewLine}" +
-                $"  Randomize for each new image.{Environment.NewLine}" +
-                $" -i <ms>{Environment.NewLine}" +
-                $"  Interval, in milliseconds. Defaults to 5000 = 5 seconds.{Environment.NewLine}" +
-                $" -s{Environment.NewLine}" +
-                $"  Include subfolders.{Environment.NewLine}" +
-                $"{Environment.NewLine}";
+            var list = new[]
+            {
+                $"{Application.ProductName} v{Application.ProductVersion}",
+                string.Empty,
+                "Usage:",
+                " slideshow <path-to-images> [options]",
+                string.Empty,
+                "Options:",
+                " -r",
+                "  Randomize for each new image.",
+                " -i <ms>",
+                "  Interval, in milliseconds. Defaults to 5000 = 5 seconds.",
+                " -s",
+                "  Include subfolders.",
+                string.Empty,
+                "Keys:",
+                " ESC - Exit slideshow.",
+                " Space - Pause/resume slideshow."
+            };
+
+            var text = string.Join(Environment.NewLine, list);
 
             MessageBox.Show(
                 text,
