@@ -58,7 +58,8 @@ namespace Slideshow
         /// </summary>
         /// <param name="args">App arguments.</param>
         [STAThread]
-        private static void Main(string[] args)
+        private static void Main(
+            string[] args)
         {
             ApplicationConfiguration.Initialize();
 
@@ -92,7 +93,9 @@ namespace Slideshow
         /// </summary>
         /// <param name="sender">Originating control.</param>
         /// <param name="arg">Keys pressed.</param>
-        private static void OnKeyDown(object? sender, KeyEventArgs arg)
+        private static void OnKeyDown(
+            object? sender, 
+            KeyEventArgs arg)
         {
             switch (arg.KeyCode)
             {
@@ -106,7 +109,9 @@ namespace Slideshow
         /// <summary>
         /// Process timer interval.
         /// </summary>
-        private static void OnTimerTick(object? sender, EventArgs e)
+        private static void OnTimerTick(
+            object? sender, 
+            EventArgs e)
         {
             ImageIndex++;
 
@@ -174,7 +179,9 @@ namespace Slideshow
         /// <summary>
         /// When the window is shown.
         /// </summary>
-        private static void OnWindowShown(object? sender, EventArgs e)
+        private static void OnWindowShown(
+            object? sender, 
+            EventArgs e)
         {
             // Set window height and width.
             WindowHeight = Window.Height;
@@ -193,7 +200,8 @@ namespace Slideshow
         /// </summary>
         /// <param name="args">App arguments.</param>
         /// <returns>Success.</returns>
-        private static bool Configure(string[] args)
+        private static bool Configure(
+            string[] args)
         {
             if (args == null ||
                 args.Length == 0 ||
@@ -213,7 +221,7 @@ namespace Slideshow
 
                 ImagePath = args[0];
 
-                if (!FindAllImages())
+                if (!FindAllImages(args.Any(n => n == "-s")))
                 {
                     throw new Exception(
                         $"No images found in {ImagePath}");
@@ -284,8 +292,10 @@ namespace Slideshow
         /// <summary>
         /// Find all the images in the given path.
         /// </summary>
+        /// <param name="includeSubfolders">Include subfolders.</param>
         /// <returns>Success.</returns>
-        private static bool FindAllImages()
+        private static bool FindAllImages(
+            bool includeSubfolders = false)
         {
             var exts = new[]
             {
@@ -295,6 +305,10 @@ namespace Slideshow
                 "gif"
             };
 
+            var searchOption = includeSubfolders
+                ? SearchOption.AllDirectories
+                : SearchOption.TopDirectoryOnly;
+
             foreach (var ext in exts)
             {
                 try
@@ -303,7 +317,7 @@ namespace Slideshow
                         Directory.GetFiles(
                             ImagePath,
                             $"*.{ext}",
-                            SearchOption.TopDirectoryOnly));
+                            searchOption));
                 }
                 catch
                 {
@@ -379,6 +393,8 @@ namespace Slideshow
                 $"  Randomize for each new image.{Environment.NewLine}" +
                 $" -i <ms>{Environment.NewLine}" +
                 $"  Interval, in milliseconds. Defaults to 5000 = 5 seconds.{Environment.NewLine}" +
+                $" -s{Environment.NewLine}" +
+                $"  Include subfolders.{Environment.NewLine}" +
                 $"{Environment.NewLine}";
 
             MessageBox.Show(
