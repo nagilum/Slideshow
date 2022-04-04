@@ -108,6 +108,29 @@ namespace Slideshow
                 case Keys.Space:
                     Interval.Enabled = !Interval.Enabled;
                     break;
+
+                // Go to previous image.
+                case Keys.Left:
+                    ImageIndex--;
+
+                    if (ImageIndex == -1)
+                    {
+                        ImageIndex = Images.Count - 1;
+                    }
+
+                    ImageIndex--;
+
+                    if (ImageIndex == -1)
+                    {
+                        ImageIndex = Images.Count - 1;
+                    }
+
+                    OnTimerTick(null, new());
+
+                    Interval.Enabled = false;
+                    Interval.Enabled = true;
+
+                    break;
             }
         }
 
@@ -404,7 +427,8 @@ namespace Slideshow
                 string.Empty,
                 "Keys:",
                 " ESC - Exit slideshow.",
-                " Space - Pause/resume slideshow."
+                " Space - Pause/resume slideshow.",
+                " Left - Go to previous image."
             };
 
             var text = string.Join(Environment.NewLine, list);
