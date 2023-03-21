@@ -496,7 +496,7 @@ namespace Slideshow
                 " -s",
                 "  Include subfolders.",
                 " -n <index>",
-                "  Set the index of the screen to use. Defaults to 0.",
+                "  Set the index of the screen to use. Defaults to primary screen.",
                 string.Empty,
                 "Keys:",
                 " ESC - Exit slideshow.",
