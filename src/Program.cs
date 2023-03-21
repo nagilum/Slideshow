@@ -7,6 +7,11 @@ namespace Slideshow
         #region Properties
 
         /// <summary>
+        /// Which screen to use.
+        /// </summary>
+        private static Screen PrimaryScreen { get; set; } = Screen.PrimaryScreen;
+
+        /// <summary>
         /// Main window.
         /// </summary>
         private static Form Window { get; set; } = null!;
@@ -296,8 +301,16 @@ namespace Slideshow
             // Cycle for more params.
             try
             {
+                var skip = false;
+
                 for (var i = 1; i < args.Length; i++)
                 {
+                    if (skip)
+                    {
+                        skip = false;
+                        continue;
+                    }
+
                     switch (args[i])
                     {
                         // Randomize for each new image.
@@ -325,6 +338,34 @@ namespace Slideshow
                             }
 
                             IntervalMilliseconds = ms;
+
+                            skip = true;
+                            break;
+
+                        // Set screen to use, by index.
+                        case "-n":
+                            if (i == args.Length - 1)
+                            {
+                                throw new Exception(
+                                    "Argument -n must be followed by an index.");
+                            }
+
+                            if (!int.TryParse(args[i + 1], out var index))
+                            {
+                                throw new Exception(
+                                    $"Unable to parse argument {args[i + 1]} to a valid index.");
+                            }
+
+                            if (index < 0 ||
+                                index >= Screen.AllScreens.Length)
+                            {
+                                throw new Exception(
+                                    $"Screen index out of bounds.");
+                            }
+
+                            PrimaryScreen = Screen.AllScreens[index];
+
+                            skip = true;
                             break;
                     }
                 }
@@ -424,6 +465,9 @@ namespace Slideshow
             {
                 BackColor = Color.Black,
                 FormBorderStyle = FormBorderStyle.None,
+                Left = PrimaryScreen.WorkingArea.Left,
+                StartPosition = FormStartPosition.Manual,
+                Top = PrimaryScreen.WorkingArea.Top,
                 WindowState = FormWindowState.Maximized
             };
 
@@ -451,6 +495,8 @@ namespace Slideshow
                 "  Interval, in milliseconds. Defaults to 5000 = 5 seconds.",
                 " -s",
                 "  Include subfolders.",
+                " -n <index>",
+                "  Set the index of the screen to use. Defaults to 0.",
                 string.Empty,
                 "Keys:",
                 " ESC - Exit slideshow.",
