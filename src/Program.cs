@@ -22,11 +22,6 @@ internal static class Program
     private static bool GetFileRecursively { get; set; }
     
     /// <summary>
-    /// List of all image paths to get images from.
-    /// </summary>
-    private static List<string> ImagePaths { get; } = new();
-
-    /// <summary>
     /// List of all image filename patterns to scan for.
     /// </summary>
     private static List<string> ImageFilePatterns { get; } = new();
@@ -57,7 +52,7 @@ internal static class Program
     private static Version Version { get; } = new(0, 1, 15);
 
     /// <summary>
-    /// Init all the things..
+    /// Init all the things...
     /// </summary>
     /// <param name="args">Command line arguments.</param>
     [STAThread]
@@ -80,17 +75,19 @@ internal static class Program
 
         if (ImageFilePatterns.Count == 0)
         {
-            ImageFilePatterns.Add("*.*");
+            ImageFilePatterns.Add("*");
         }
 
         foreach (var pattern in ImageFilePatterns)
         {
-            foreach (var imagePath in ImagePaths)
+            var files = GetFiles(pattern, SearchOption.TopDirectoryOnly);
+
+            foreach (var file in files)
             {
-                Files.AddRange(Directory.GetFiles(
-                    imagePath,
-                    pattern,
-                    GetFileRecursively ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly));
+                if (!Files.Contains(file))
+                {
+                    Files.Add(file);
+                }
             }
         }
 
@@ -713,15 +710,9 @@ internal static class Program
 
                     break;
                 
-                // Try to parse as path.
+                // Treat it as a path/pattern.
                 default:
-                    if (!Directory.Exists(args[i]))
-                    {
-                        errorWindow = CreateErrorParameterWindow(args[i], "Must be a valid folder path.");
-                        return false;
-                    }
-
-                    ImagePaths.Add(args[i]);
+                    ImageFilePatterns.Add(args[i]);
                     break;
             }
         }
@@ -765,5 +756,67 @@ internal static class Program
         {
             AnimateFormOpacity(next);
         }
+    }
+    
+    /// <summary>
+    /// Returns the names of files (including their paths) that match the specified search pattern in the specified directory.
+    /// </summary>
+    /// <param name="pathAndPattern">Path and/or search pattern.</param>
+    /// <param name="searchOption">One of the enumeration values that specifies whether the search operation should include all subdirectories or only the current directory.</param>
+    /// <returns>An array of file names, including their paths.</returns>
+    public static string[] GetFiles(string pathAndPattern, SearchOption searchOption)
+    {
+        var (path, pattern) = GetPathAndPattern(pathAndPattern);
+
+        return Directory.GetFiles(path, pattern, searchOption);
+    }
+    
+    /// <summary>
+    /// Separates the path and search pattern from the single input string.
+    /// </summary>
+    /// <param name="pathAndPattern">Path and/or search pattern.</param>
+    /// <returns>Path and pattern, separated.</returns>
+    private static Tuple<string, string> GetPathAndPattern(string pathAndPattern)
+    {
+        string path;
+        string pattern;
+        
+        if (Directory.Exists(pathAndPattern))
+        {
+            path = pathAndPattern;
+            pattern = "*";
+        }
+        else if (File.Exists(pathAndPattern))
+        {
+            path = Path.GetDirectoryName(pathAndPattern) ?? string.Empty;
+            pattern = Path.GetFileName(pathAndPattern);
+        }
+        else
+        {
+            var index = pathAndPattern.LastIndexOf(Path.DirectorySeparatorChar);
+            
+            if (index == -1)
+            {
+                path = string.Empty;
+                pattern = pathAndPattern;
+            }
+            else
+            {
+                path = pathAndPattern[..index];
+                pattern = pathAndPattern[(index + 1)..];
+            }
+        }
+        
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            path = Directory.GetCurrentDirectory();
+        }
+
+        if (string.IsNullOrWhiteSpace(pattern))
+        {
+            pattern = "*";
+        }
+
+        return new(path, pattern);
     }
 }
